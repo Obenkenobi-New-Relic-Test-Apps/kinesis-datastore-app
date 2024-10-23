@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static com.nr.testapp.Config.CREDENTIALS_PROVIDER;
+import static com.nr.testapp.Config.V2_CREDENTIALS_PROVIDER;
 import static com.nr.testapp.Config.REGION;
 import static com.nr.testapp.Config.STREAM_NAME;
 
@@ -33,7 +33,7 @@ public class KinesisAsync {
     @Trace(dispatcher = true)
     public static void runKinesisAsync() {
         Region region = Region.of(REGION);
-        try(KinesisAsyncClient kinesisClient = KinesisAsyncClient.builder().credentialsProvider(CREDENTIALS_PROVIDER).region(region).build()) {
+        try(KinesisAsyncClient kinesisClient = KinesisAsyncClient.builder().credentialsProvider(V2_CREDENTIALS_PROVIDER).region(region).build()) {
 //            createStream(kinesisClient, STREAM_NAME).get();
 //            Thread.sleep(5000);
             validateStream(kinesisClient, STREAM_NAME).get();
@@ -78,7 +78,7 @@ public class KinesisAsync {
             }
             return true;
         }).exceptionally(e -> {
-            log.error("Error found while describing the stream " + streamName, e);
+            log.error("Error found while describing the stream {}", streamName, e);
             throw new RuntimeException(e);
         });
 
@@ -147,7 +147,7 @@ public class KinesisAsync {
         });
 
         CompletableFuture<String> lastShardIdFuture = shardsFuture.thenApply(shardsList -> {
-            if (shardsList.size() > 0) {
+            if (!shardsList.isEmpty()) {
                 return shardsList.get(shardsList.size() - 1).shardId();
             }
             return initLastShardId;

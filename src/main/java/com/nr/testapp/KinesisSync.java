@@ -22,7 +22,7 @@ import software.amazon.awssdk.services.kinesis.model.Shard;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.nr.testapp.Config.CREDENTIALS_PROVIDER;
+import static com.nr.testapp.Config.V2_CREDENTIALS_PROVIDER;
 import static com.nr.testapp.Config.REGION;
 import static com.nr.testapp.Config.STREAM_NAME;
 
@@ -33,12 +33,15 @@ public class KinesisSync {
     @Trace(dispatcher = true)
     public static void runKinesisSync() {
         Region region = Region.of(REGION);
-        try(KinesisClient kinesisClient = KinesisClient.builder().credentialsProvider(CREDENTIALS_PROVIDER).region(region).build()) {
+        try(KinesisClient kinesisClient = KinesisClient.builder().credentialsProvider(V2_CREDENTIALS_PROVIDER).region(region).build()) {
 //            createStream(kinesisClient, STREAM_NAME);
+//            Thread.sleep(5000);
             validateStream(kinesisClient, STREAM_NAME);
             setStockData(kinesisClient, STREAM_NAME);
             getStockTrades(kinesisClient, STREAM_NAME);
 //            deleteStream(kinesisClient, STREAM_NAME);
+        } catch (Exception e) {
+            log.error(e.getMessage());
         }
     }
 
@@ -52,7 +55,7 @@ public class KinesisSync {
 
             kinesisClient.createStream(streamReq);
             log.info("Created stream {} with shard {}", streamName, shardCount);
-        } catch (KinesisException e) {
+        } catch (Exception e) {
             log.error("Failed to create stream {} with shard {}", streamName, shardCount, e);
         }
     }
@@ -139,7 +142,6 @@ public class KinesisSync {
         System.out.println("Done");
     }
 
-    @Trace(dispatcher = true)
     private static void sendStockTrade(StockTrade trade, KinesisClient kinesisClient,
             String streamName) {
         byte[] bytes = trade.toJsonAsBytes();

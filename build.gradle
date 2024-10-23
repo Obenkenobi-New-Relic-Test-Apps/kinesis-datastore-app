@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
 group 'com.nr.testapp'
@@ -13,6 +14,16 @@ def versions = [
         log4jVersion: '2.20.0',
         junitVersion: '5.8.1'
 ]
+
+application {
+    mainClass = 'com.nr.testapp.App'
+    applicationDefaultJvmArgs = ["-javaagent:/Users/obenmeir/Projects/newrelic-java-agent/newrelic-agent/build/newrelicJar/newrelic.jar",
+                                 "-Dnewrelic.config.file=/Users/obenmeir/Projects/_TestApps/kinesis-ds-app/newrelic/newrelic.yml",
+                                 "-Daws.java.v1.disableDeprecationAnnouncement=true",
+//                                 "-Xdebug",
+//                                 "-Xrunjdwp:transport=dt_socket,server=n,address=192.168.1.140:5005,suspend=y"
+    ]
+}
 
 dependencies {
     implementation "org.apache.logging.log4j:log4j-api:${versions.log4jVersion}"
